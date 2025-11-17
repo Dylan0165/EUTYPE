@@ -1,0 +1,66 @@
+name: Deploy EuType Frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: dylan0165/eutype-frontend
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update Kubernetes deployment
+        run: |
+          # Update image in deployment
+          kubectl set image deployment/eutype-frontend \
+            eutype-frontend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            -n eucloud
+          
+          # Wait for rollout
+          kubectl rollout status deployment/eutype-frontend -n eucloud --timeout=5m
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n eucloud -l app=eutype-frontend
+          kubectl get svc -n eucloud eutype-frontend
