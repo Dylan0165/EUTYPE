@@ -125,22 +125,24 @@ export default function FilePicker() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-blue-600">EUTYPE</h1>
-            {user && <p className="text-sm text-gray-600 mt-1">Welkom, {user.username}</p>}
+            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+              ☁️ EUTYPE
+            </h1>
+            {user && <p className="text-sm text-blue-100 mt-1">Welkom terug, {user.username}</p>}
           </div>
           <div className="flex gap-3">
             <button
               onClick={() => setShowNewDocModal(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+              className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 flex items-center gap-2 font-semibold transition-colors"
             >
-              <span>+</span> Nieuw document
+              <span>📝</span> Nieuw document
             </button>
             <button
               onClick={handleLogout}
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+              className="bg-blue-500 bg-opacity-30 text-white px-4 py-2 rounded-md hover:bg-opacity-40 transition-colors"
             >
               Uitloggen
             </button>
