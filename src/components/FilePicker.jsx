@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { listEuTypeDocuments, createDocument, deleteFile, renameFile } from '../api/files'
-import { logout, getCachedUser } from '../api/auth'
+import { getCurrentUser } from '../api/auth'
+
+const SSO_PORTAL_URL = 'http://192.168.124.50:30090'
 
 export default function FilePicker() {
   const navigate = useNavigate()
@@ -20,9 +22,13 @@ export default function FilePicker() {
     loadUser()
   }, [])
 
-  const loadUser = () => {
-    const cachedUser = getCachedUser()
-    setUser(cachedUser)
+  const loadUser = async () => {
+    try {
+      const userData = await getCurrentUser()
+      setUser(userData)
+    } catch (err) {
+      console.error('Failed to load user:', err)
+    }
   }
 
   const loadFiles = async () => {
@@ -96,7 +102,8 @@ export default function FilePicker() {
   }
 
   const handleLogout = () => {
-    logout()
+    // Redirect to SSO portal for logout
+    window.location.href = `${SSO_PORTAL_URL}/logout`
   }
 
   const formatFileSize = (bytes) => {

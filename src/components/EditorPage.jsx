@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getFileContent, updateFileContent, getFileMetadata } from '../api/files'
-import { getCachedUser, logout } from '../api/auth'
+import { getCurrentUser } from '../api/auth'
 import RibbonToolbar from './RibbonToolbar'
 import Editor from './Editor'
 import StatusBar from './StatusBar'
 import NavigationPanel from './NavigationPanel'
 import SearchPanel from './SearchPanel'
+
+const SSO_PORTAL_URL = 'http://192.168.124.50:30090'
 
 export default function EditorPage() {
   const navigate = useNavigate()
@@ -33,8 +35,15 @@ export default function EditorPage() {
 
   // Load user
   useEffect(() => {
-    const cachedUser = getCachedUser()
-    setUser(cachedUser)
+    const loadUser = async () => {
+      try {
+        const userData = await getCurrentUser()
+        setUser(userData)
+      } catch (err) {
+        console.error('Failed to load user:', err)
+      }
+    }
+    loadUser()
   }, [])
 
   // Load document
@@ -273,7 +282,8 @@ export default function EditorPage() {
         return
       }
     }
-    logout()
+    // Redirect to SSO portal for logout
+    window.location.href = `${SSO_PORTAL_URL}/logout`
   }
 
   if (loading) {

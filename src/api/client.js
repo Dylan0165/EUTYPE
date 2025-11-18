@@ -1,42 +1,29 @@
 import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://192.168.124.50:30500/api'
+const SSO_LOGIN_URL = 'http://192.168.124.50:30090/login'
 
-// Axios instance met automatische token injection
+// Axios instance voor SSO-based authentication
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: true // BELANGRIJK: stuurt cookies mee met ALLE requests
 })
 
-// Request interceptor - voeg JWT token toe
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('jwt_token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
-  }
-)
-
-// Response interceptor - handle 401 errors
+// Response interceptor - handle 401 errors door redirect naar SSO login
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('jwt_token')
-      localStorage.removeItem('user_data')
-      window.location.href = '/login'
+      // User is not authenticated - redirect to SSO login portal
+      const currentUrl = window.location.href
+      window.location.href = `${SSO_LOGIN_URL}?redirect=${encodeURIComponent(currentUrl)}`
     }
     return Promise.reject(error)
   }
 )
 
 export default apiClient
-export { API_BASE_URL }
+export { API_BASE_URL, SSO_LOGIN_URL }
