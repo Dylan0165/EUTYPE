@@ -5,8 +5,7 @@ import { formatApiError } from '../utils/errorHandling'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  // Start met REGISTER mode voor nieuwe gebruikers
-  const [mode, setMode] = useState('register') // 'login' of 'register'
+  const [mode, setMode] = useState('login')
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -15,7 +14,6 @@ export default function LoginPage() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
 
   const handleInputChange = (e) => {
     setFormData({
@@ -32,15 +30,11 @@ export default function LoginPage() {
 
     try {
       await login(formData.username, formData.password)
-      navigate('/') // Redirect naar file picker
+      navigate('/')
     } catch (err) {
       const errorMsg = formatApiError(err)
-      
-      // Geef specifieke hulp voor veelvoorkomende fouten
-      if (err.response?.status === 401 || errorMsg.includes('Incorrect')) {
-        setError('Gebruikersnaam of wachtwoord is onjuist. Probeer het opnieuw of registreer een nieuw account.')
-      } else if (err.response?.status === 422) {
-        setError('Ongeldige invoer. Controleer je gebruikersnaam en wachtwoord.')
+      if (err.response?.status === 401) {
+        setError('Gebruikersnaam of wachtwoord is onjuist.')
       } else {
         setError(errorMsg)
       }
@@ -67,7 +61,6 @@ export default function LoginPage() {
 
     try {
       await register(formData.username, formData.email, formData.password)
-      // Na registratie direct inloggen
       await login(formData.username, formData.password)
       navigate('/')
     } catch (err) {
@@ -77,147 +70,276 @@ export default function LoginPage() {
     }
   }
 
+  const styles = {
+    container: {
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    },
+    card: {
+      background: 'white',
+      padding: '48px',
+      borderRadius: '16px',
+      boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+      width: '100%',
+      maxWidth: '440px',
+      margin: '20px'
+    },
+    logo: {
+      textAlign: 'center',
+      marginBottom: '32px'
+    },
+    title: {
+      fontSize: '42px',
+      fontWeight: '700',
+      color: '#667eea',
+      margin: '0 0 8px 0',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent'
+    },
+    subtitle: {
+      color: '#6b7280',
+      fontSize: '16px',
+      margin: 0
+    },
+    form: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px'
+    },
+    inputGroup: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    },
+    label: {
+      fontSize: '14px',
+      fontWeight: '500',
+      color: '#374151'
+    },
+    input: {
+      padding: '12px 16px',
+      border: '2px solid #e5e7eb',
+      borderRadius: '8px',
+      fontSize: '15px',
+      transition: 'border-color 0.2s',
+      outline: 'none'
+    },
+    inputFocus: {
+      borderColor: '#667eea'
+    },
+    button: {
+      padding: '14px',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      fontSize: '16px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'transform 0.2s, box-shadow 0.2s',
+      marginTop: '8px'
+    },
+    buttonHover: {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 10px 20px rgba(102, 126, 234, 0.4)'
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+      cursor: 'not-allowed'
+    },
+    error: {
+      background: '#fee2e2',
+      border: '1px solid #fecaca',
+      color: '#991b1b',
+      padding: '12px 16px',
+      borderRadius: '8px',
+      fontSize: '14px',
+      marginBottom: '16px'
+    },
+    info: {
+      background: '#dbeafe',
+      border: '1px solid #bfdbfe',
+      color: '#1e40af',
+      padding: '12px 16px',
+      borderRadius: '8px',
+      fontSize: '14px',
+      marginBottom: '16px'
+    },
+    footer: {
+      textAlign: 'center',
+      marginTop: '24px',
+      color: '#6b7280',
+      fontSize: '14px'
+    },
+    link: {
+      color: '#667eea',
+      fontWeight: '600',
+      cursor: 'pointer',
+      textDecoration: 'none'
+    },
+    eucloudBranding: {
+      textAlign: 'center',
+      marginTop: '32px',
+      paddingTop: '24px',
+      borderTop: '1px solid #e5e7eb'
+    },
+    eucloudText: {
+      fontSize: '12px',
+      color: '#9ca3af',
+      margin: '0 0 8px 0'
+    },
+    appGrid: {
+      display: 'flex',
+      gap: '12px',
+      justifyContent: 'center',
+      flexWrap: 'wrap'
+    },
+    appIcon: {
+      padding: '8px 16px',
+      background: '#f3f4f6',
+      borderRadius: '6px',
+      fontSize: '12px',
+      color: '#6b7280',
+      fontWeight: '500'
+    }
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-blue-600">EUTYPE</h1>
-          <p className="text-gray-600 mt-2">
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <div style={styles.logo}>
+          <h1 style={styles.title}>EU CLOUD</h1>
+          <p style={styles.subtitle}>
             {mode === 'login' ? 'Log in op je account' : 'Maak een nieuw account'}
           </p>
         </div>
 
-        {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-sm">
-            <strong>Fout:</strong> {error}
+          <div style={styles.error}>
+            <strong>⚠️</strong> {error}
           </div>
         )}
 
-        {/* Info Message voor nieuwe gebruikers */}
         {mode === 'login' && !error && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-4 text-sm">
-            <strong>💡 Eerste keer?</strong> Klik hieronder op <strong>"Registreer hier"</strong> om een account aan te maken.
+          <div style={styles.info}>
+            <strong>💡</strong> Eerste keer? <span style={styles.link} onClick={() => setMode('register')}>Registreer hier</span>
           </div>
         )}
 
-        {/* Info voor registratie */}
-        {mode === 'register' && !error && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 text-sm">
-            <strong>🎉 Welkom bij EUTYPE!</strong> Maak een account aan om te beginnen met je documenten in de cloud.
+        <form onSubmit={mode === 'login' ? handleLogin : handleRegister} style={styles.form}>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Gebruikersnaam</label>
+            <input
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleInputChange}
+              required
+              style={styles.input}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+            />
           </div>
-        )}
 
-        {/* Form */}
-        <form onSubmit={mode === 'login' ? handleLogin : handleRegister}>
-          <div className="space-y-4">
-            {/* Username */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gebruikersnaam
-              </label>
+          {mode === 'register' && (
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>E-mailadres</label>
               <input
-                type="text"
-                name="username"
-                value={formData.username}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={styles.input}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               />
             </div>
+          )}
 
-            {/* Email (alleen bij registreren) */}
-            {mode === 'register' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  E-mailadres
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            )}
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Wachtwoord</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+              style={styles.input}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+            />
+          </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Wachtwoord
-              </label>
+          {mode === 'register' && (
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Bevestig wachtwoord</label>
               <input
                 type="password"
-                name="password"
-                value={formData.password}
+                name="confirmPassword"
+                value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={styles.input}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               />
             </div>
+          )}
 
-            {/* Confirm Password (alleen bij registreren) */}
-            {mode === 'register' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Bevestig wachtwoord
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Bezig...' : (mode === 'login' ? 'Inloggen' : 'Registreren')}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{...styles.button, ...(loading ? styles.buttonDisabled : {})}}
+            onMouseEnter={(e) => !loading && Object.assign(e.target.style, styles.buttonHover)}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)'
+              e.target.style.boxShadow = 'none'
+            }}
+          >
+            {loading ? 'Bezig...' : (mode === 'login' ? 'Inloggen' : 'Registreren')}
+          </button>
         </form>
 
-        {/* Toggle Mode */}
-        <div className="mt-6 text-center">
+        <div style={styles.footer}>
           {mode === 'login' ? (
-            <p className="text-gray-600">
+            <p>
               Nog geen account?{' '}
-              <button
-                onClick={() => {
-                  setMode('register')
-                  setError('')
-                  setFormData({ username: '', email: '', password: '', confirmPassword: '' })
-                }}
-                className="text-blue-600 hover:underline font-medium"
-              >
+              <span style={styles.link} onClick={() => {
+                setMode('register')
+                setError('')
+                setFormData({ username: '', email: '', password: '', confirmPassword: '' })
+              }}>
                 Registreer hier
-              </button>
+              </span>
             </p>
           ) : (
-            <p className="text-gray-600">
+            <p>
               Al een account?{' '}
-              <button
-                onClick={() => {
-                  setMode('login')
-                  setError('')
-                  setFormData({ username: '', email: '', password: '', confirmPassword: '' })
-                }}
-                className="text-blue-600 hover:underline font-medium"
-              >
+              <span style={styles.link} onClick={() => {
+                setMode('login')
+                setError('')
+                setFormData({ username: '', email: '', password: '', confirmPassword: '' })
+              }}>
                 Log in
-              </button>
+              </span>
             </p>
           )}
+        </div>
+
+        <div style={styles.eucloudBranding}>
+          <p style={styles.eucloudText}>Eén account voor alle EU Cloud apps</p>
+          <div style={styles.appGrid}>
+            <div style={styles.appIcon}>📝 EuType</div>
+            <div style={styles.appIcon}>📁 EuCloud Files</div>
+            <div style={styles.appIcon}>💬 EuChat</div>
+            <div style={styles.appIcon}>📧 EuMail</div>
+          </div>
         </div>
       </div>
     </div>
