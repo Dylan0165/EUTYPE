@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: dylan0165/eutype-frontend
+  IMAGE_NAME: dylan01654/eutype-frontend
 
 jobs:
   build-and-deploy:
