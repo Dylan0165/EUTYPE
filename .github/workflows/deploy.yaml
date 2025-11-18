@@ -50,9 +50,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Update Kubernetes deployment
+      - name: Deploy to Kubernetes
         run: |
-          # Update image in deployment
+          # Create namespace if not exists
+          kubectl create namespace eucloud --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Apply manifests (creates or updates deployment and service)
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          
+          # Update image to latest
           kubectl set image deployment/eutype-frontend \
             eutype-frontend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             -n eucloud
