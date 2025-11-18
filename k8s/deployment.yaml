@@ -19,7 +19,7 @@ spec:
         - name: docker-registry-secret
       containers:
         - name: eutype-frontend
-          image: docker.io/dylan01654/eutype-frontend:latest
+          image: docker.io/dylan016504/eutype-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
