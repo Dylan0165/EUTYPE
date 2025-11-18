@@ -16,10 +16,10 @@ spec:
         app: eutype-frontend
     spec:
       imagePullSecrets:
-        - name: ghcr-secret
+        - name: docker-registry-secret
       containers:
         - name: eutype-frontend
-          image: ghcr.io/dylan0165/eutype-frontend:latest
+          image: docker.io/dylan0165/eutype-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
