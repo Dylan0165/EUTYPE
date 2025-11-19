@@ -129,7 +129,8 @@ export default function FilePicker() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-              ☁️ EUTYPE
+              ☁️ EUTYPE <span style={{fontSize: '22px'}}>🚀</span>
+              <span className="ml-2 px-2 py-1 rounded bg-white bg-opacity-20 text-xs font-semibold tracking-wide" style={{letterSpacing: '1px'}}>SSO actief</span>
             </h1>
             {user && <p className="text-sm text-blue-100 mt-1">Welkom terug, {user.username}</p>}
           </div>
