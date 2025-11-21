@@ -42,31 +42,12 @@ async function validateSSOSession() {
  * Initialize app met SSO check
  */
 async function initApp() {
-  // Show loading state
-  const rootElement = document.getElementById('root')
-  rootElement.innerHTML = `
-    <div style="
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    ">
-      <div style="text-align: center;">
-        <div style="font-size: 48px; margin-bottom: 16px;">☁️</div>
-        <h2 style="font-size: 24px; font-weight: 600; margin: 0;">EUTYPE</h2>
-        <p style="font-size: 14px; opacity: 0.9; margin-top: 8px;">Validating session...</p>
-      </div>
-    </div>
-  `
-
-  // Validate SSO session
+  // Validate SSO session FIRST - geen UI tonen
   const user = await validateSSOSession()
 
   // Als validation succesvol, mount React app
   if (user) {
+    const rootElement = document.getElementById('root')
     ReactDOM.createRoot(rootElement).render(
       <React.StrictMode>
         <App />
