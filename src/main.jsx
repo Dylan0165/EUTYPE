@@ -11,6 +11,10 @@ const SSO_LOGIN_URL = 'http://192.168.124.50:30090/login'
  * Controleert of gebruiker is ingelogd VOORDAT de React app mount
  */
 async function validateSSOSession() {
+  console.log('[EUTYPE] Starting SSO validation...')
+  console.log('[EUTYPE] API Base URL:', API_BASE_URL)
+  console.log('[EUTYPE] SSO Login URL:', SSO_LOGIN_URL)
+  
   try {
     const response = await fetch(`${API_BASE_URL}/auth/validate`, {
       method: 'GET',
@@ -20,20 +24,29 @@ async function validateSSOSession() {
       }
     })
 
+    console.log('[EUTYPE] SSO validation response status:', response.status)
+
     if (!response.ok) {
       // Sessie niet geldig - redirect naar centrale login
+      console.log('[EUTYPE] No valid session - redirecting to SSO login')
       const currentUrl = window.location.href
-      window.location.href = `${SSO_LOGIN_URL}?redirect=${encodeURIComponent(currentUrl)}`
+      const redirectUrl = `${SSO_LOGIN_URL}?redirect=${encodeURIComponent(currentUrl)}`
+      console.log('[EUTYPE] Redirecting to:', redirectUrl)
+      window.location.href = redirectUrl
       return null
     }
 
     // Sessie geldig - return user data
-    return await response.json()
+    const userData = await response.json()
+    console.log('[EUTYPE] SSO validation successful, user:', userData)
+    return userData
   } catch (error) {
-    console.error('SSO validation failed:', error)
+    console.error('[EUTYPE] SSO validation failed:', error)
     // Bij netwerk errors ook naar login
     const currentUrl = window.location.href
-    window.location.href = `${SSO_LOGIN_URL}?redirect=${encodeURIComponent(currentUrl)}`
+    const redirectUrl = `${SSO_LOGIN_URL}?redirect=${encodeURIComponent(currentUrl)}`
+    console.log('[EUTYPE] Redirecting to:', redirectUrl)
+    window.location.href = redirectUrl
     return null
   }
 }
