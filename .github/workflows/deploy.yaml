@@ -30,22 +30,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.repositoryUrl }}
+            org.opencontainers.image.revision=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -58,20 +51,24 @@ jobs:
             --namespace=eucloud \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: Update deployment image
+        run: |
+          sed -i 's|image: docker.io/dylan016504/eutype-frontend:.*|image: docker.io/dylan016504/eutype-frontend:${{ github.sha }}|g' k8s/deployment.yaml
+
       - name: Deploy to Kubernetes
         run: |
           # Create namespace if not exists
           kubectl create namespace eucloud --dry-run=client -o yaml | kubectl apply -f -
           
-          # Apply manifests (creates or updates deployment and service)
+          # Apply manifests with new image tag
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           
-          # Force restart pods to use new local image
-          kubectl rollout restart deployment/eutype-frontend -n eucloud
-          
           # Wait for rollout
           kubectl rollout status deployment/eutype-frontend -n eucloud --timeout=5m
+
+      - name: Restart rollout
+        run: kubectl rollout restart deployment/eutype-frontend -n eucloud
 
       - name: Verify deployment
         run: |
