@@ -44,16 +44,19 @@ jobs:
         with:
           context: .
           push: true
-          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Import image to k3s
+      - name: Create Docker registry secret
         run: |
-          # Import image directly to k3s
-          docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest | sudo k3s ctr images import -
+          kubectl create secret docker-registry docker-registry-secret \
+            --docker-server=docker.io \
+            --docker-username=${{ secrets.DOCKER_USERNAME }} \
+            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+            --namespace=eucloud \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy to Kubernetes
         run: |
