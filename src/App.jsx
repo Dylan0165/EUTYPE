@@ -24,12 +24,12 @@ function App() {
         alignItems: 'center',
         height: '100vh',
         flexDirection: 'column',
-        gap: '1rem',
+        gap: '1.5rem',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white'
       }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: '600' }}>EUTYPE</div>
-        <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>Authenticatie controleren...</div>
+        <div style={{ fontSize: '2rem', fontWeight: '700', letterSpacing: '2px' }}>EUTYPE</div>
+        <div style={{ fontSize: '1rem', opacity: 0.95 }}>SSO authenticatie valideren...</div>
       </div>
     )
   }
