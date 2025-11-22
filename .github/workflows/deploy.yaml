@@ -54,17 +54,17 @@ jobs:
           # Create namespace if not exists
           kubectl create namespace eucloud --dry-run=client -o yaml | kubectl apply -f -
           
-          # Apply manifests (creates or updates deployment and service)
-          kubectl apply -f k8s/deployment.yaml
+          # Apply service first (stays unchanged)
           kubectl apply -f k8s/service.yaml
           
-          # Update image to latest and force rollout with timestamp annotation
-          kubectl set image deployment/eutype-frontend \
-            eutype-frontend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            -n eucloud
+          # Delete existing deployment to force clean restart
+          kubectl delete deployment eutype-frontend -n eucloud --ignore-not-found=true --timeout=60s
           
-          kubectl patch deployment eutype-frontend -n eucloud \
-            -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}}}}}"
+          # Wait a moment for cleanup
+          sleep 5
+          
+          # Create fresh deployment with new image
+          kubectl apply -f k8s/deployment.yaml
           
           # Wait for rollout
           kubectl rollout status deployment/eutype-frontend -n eucloud --timeout=5m
