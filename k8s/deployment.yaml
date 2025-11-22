@@ -15,12 +15,10 @@ spec:
       labels:
         app: eutype-frontend
     spec:
-      imagePullSecrets:
-        - name: docker-registry-secret
       containers:
         - name: eutype-frontend
           image: docker.io/dylan016504/eutype-frontend:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
               name: http

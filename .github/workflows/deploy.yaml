@@ -44,10 +44,22 @@ jobs:
         with:
           context: .
           push: true
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Import image to containerd
+        run: |
+          # Save image to tar
+          docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest -o /tmp/eutype-frontend.tar
+          
+          # Import to containerd (k3s uses containerd)
+          sudo k3s ctr images import /tmp/eutype-frontend.tar
+          
+          # Cleanup
+          rm /tmp/eutype-frontend.tar
 
       - name: Deploy to Kubernetes
         run: |
@@ -58,10 +70,8 @@ jobs:
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           
-          # Update image to latest
-          kubectl set image deployment/eutype-frontend \
-            eutype-frontend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            -n eucloud
+          # Force restart pods to use new local image
+          kubectl rollout restart deployment/eutype-frontend -n eucloud
           
           # Wait for rollout
           kubectl rollout status deployment/eutype-frontend -n eucloud --timeout=5m
