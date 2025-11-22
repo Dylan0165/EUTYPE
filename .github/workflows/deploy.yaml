@@ -58,10 +58,13 @@ jobs:
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           
-          # Update image to latest
+          # Update image to latest and force rollout with timestamp annotation
           kubectl set image deployment/eutype-frontend \
             eutype-frontend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             -n eucloud
+          
+          kubectl patch deployment eutype-frontend -n eucloud \
+            -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}}}}}"
           
           # Wait for rollout
           kubectl rollout status deployment/eutype-frontend -n eucloud --timeout=5m
