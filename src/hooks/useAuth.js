@@ -8,6 +8,16 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const getRedirectPath = () => {
+    const currentPath = window.location.pathname + window.location.search;
+    return currentPath === "/" ? "/eutype" : currentPath;
+  };
+
+  const redirectToLogin = () => {
+    const safeRedirect = getRedirectPath();
+    window.location.href = `${LOGIN_URL}?redirect=${encodeURIComponent(safeRedirect)}`;
+  };
+
   const validateAuth = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -18,32 +28,25 @@ export const useAuth = () => {
       });
 
       if (response.status === 401) {
-        // User niet ingelogd -> redirect naar login
-        const redirectPath = window.location.pathname + window.location.search;
-        const redirectUrl = redirectPath === "/" ? "/eutype" : redirectPath;
-        window.location.href = `${LOGIN_URL}?redirect=${encodeURIComponent(redirectUrl)}`;
+        redirectToLogin();
         return;
       }
 
       if (response.ok) {
         const data = await response.json();
         if (data.valid && data.username) {
-            setUser({ username: data.username, email: data.email });
+          setUser({ username: data.username, email: data.email });
         } else {
-            // Should technically be 401, but if valid is false
-             const redirectPath = window.location.pathname + window.location.search;
-             const redirectUrl = redirectPath === "/" ? "/eutype" : redirectPath;
-             window.location.href = `${LOGIN_URL}?redirect=${encodeURIComponent(redirectUrl)}`;
-             return;
+          redirectToLogin();
+          return;
         }
       } else {
-          throw new Error(`Auth check failed with status: ${response.status}`);
+        throw new Error(`Auth check failed with status: ${response.status}`);
       }
 
     } catch (err) {
       console.error("Auth validation error:", err);
       setError(err);
-      // In catch GEEN redirect meer doen, alleen loggen en error state zetten
     } finally {
       setLoading(false);
     }
@@ -58,7 +61,7 @@ export const useAuth = () => {
     } catch (error) {
       console.error("Logout failed", error);
     } finally {
-      window.location.href = `${LOGIN_URL}?redirect=/eutype`;
+      window.location.href = `${LOGIN_URL}?redirect=${encodeURIComponent("/eutype")}`;
     }
   }, []);
 
