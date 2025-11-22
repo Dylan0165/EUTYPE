@@ -50,16 +50,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Import image to containerd
+      - name: Import image to k3s
         run: |
-          # Save image to tar
-          docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest -o /tmp/eutype-frontend.tar
-          
-          # Import to containerd (k3s uses containerd)
-          k3s ctr images import /tmp/eutype-frontend.tar
-          
-          # Cleanup
-          rm /tmp/eutype-frontend.tar
+          # Import image directly to k3s
+          docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest | sudo k3s ctr images import -
 
       - name: Deploy to Kubernetes
         run: |
