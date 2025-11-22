@@ -27,7 +27,7 @@ function App() {
         gap: '1rem'
       }}>
         <div style={{ fontSize: '1.2rem' }}>EUTYPE wordt geladen...</div>
-        <div style={{ fontSize: '0.9rem', color: '#666' }}>SSO sessie wordt gevalideerd</div>
+        <div style={{ fontSize: '0.9rem', color: '#666' }}>SSO authenticatie valideren...</div>
       </div>
     )
   }
