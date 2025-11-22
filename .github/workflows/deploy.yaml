@@ -56,7 +56,7 @@ jobs:
           docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest -o /tmp/eutype-frontend.tar
           
           # Import to containerd (k3s uses containerd)
-          sudo k3s ctr images import /tmp/eutype-frontend.tar
+          k3s ctr images import /tmp/eutype-frontend.tar
           
           # Cleanup
           rm /tmp/eutype-frontend.tar
