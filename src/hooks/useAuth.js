@@ -9,7 +9,11 @@ export const useAuth = () => {
   const [error, setError] = useState(null);
 
   const getRedirectPath = () => {
-    const currentPath = window.location.pathname + window.location.search;
+    let currentPath = window.location.pathname + window.location.search;
+    // Fix: Remove /eutype if present (legacy path) to prevent loops
+    if (currentPath.startsWith('/eutype')) {
+      currentPath = currentPath.replace('/eutype', '');
+    }
     return currentPath || "/";
   };
 

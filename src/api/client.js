@@ -18,7 +18,13 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
       // Sessie verlopen of niet ingelogd - redirect naar centrale login
-      const currentPath = window.location.pathname + window.location.search || '/'
+      let currentPath = window.location.pathname + window.location.search
+      // Fix: Remove /eutype if present (legacy path)
+      if (currentPath.startsWith('/eutype')) {
+        currentPath = currentPath.replace('/eutype', '')
+      }
+      currentPath = currentPath || '/'
+      
       window.location.href = `${SSO_LOGIN_URL}?redirect=${encodeURIComponent(currentPath)}`
     }
     return Promise.reject(error)
