@@ -10,17 +10,18 @@ export const useAuth = () => {
 
   const getRedirectPath = () => {
     const currentPath = window.location.pathname + window.location.search;
-    return currentPath === "/" ? "/eutype" : currentPath;
+    return currentPath || "/";
   };
 
   const redirectToLogin = () => {
-    const safeRedirect = getRedirectPath();
-    window.location.href = `${LOGIN_URL}?redirect=${encodeURIComponent(safeRedirect)}`;
+    const redirect = getRedirectPath();
+    window.location.href = `${LOGIN_URL}?redirect=${encodeURIComponent(redirect)}`;
   };
 
   const validateAuth = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/validate`, {
         method: "GET",
@@ -41,7 +42,8 @@ export const useAuth = () => {
           return;
         }
       } else {
-        throw new Error(`Auth check failed with status: ${response.status}`);
+        redirectToLogin();
+        return;
       }
 
     } catch (err) {
@@ -58,10 +60,10 @@ export const useAuth = () => {
         method: "POST",
         credentials: "include",
       });
-    } catch (error) {
-      console.error("Logout failed", error);
+    } catch (err) {
+      console.error("Logout failed", err);
     } finally {
-      window.location.href = `${LOGIN_URL}?redirect=${encodeURIComponent("/eutype")}`;
+      window.location.href = `${LOGIN_URL}?redirect=/`;
     }
   }, []);
 

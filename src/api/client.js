@@ -18,8 +18,8 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
       // Sessie verlopen of niet ingelogd - redirect naar centrale login
-      const currentUrl = window.location.href
-      window.location.href = `${SSO_LOGIN_URL}?redirect=${encodeURIComponent(currentUrl)}`
+      const currentPath = window.location.pathname + window.location.search || '/'
+      window.location.href = `${SSO_LOGIN_URL}?redirect=${encodeURIComponent(currentPath)}`
     }
     return Promise.reject(error)
   }
